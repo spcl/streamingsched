@@ -10,11 +10,11 @@ S-Sched propose models and heuristics for scheduling a direct acyclic task graph
 and considering  *pipelining* across tasks as first-class citizen desiderata.
 
 
-##  Code - Requirements and Setup.
+##  Code - Requirements and Setup
 
 
 
-The library is written on Python3.6+.
+The library is written on Python3.8 and successive.
 
 To install all the required modules it is sufficient to run from the repository folder:
 
@@ -22,8 +22,6 @@ To install all the required modules it is sufficient to run from the repository 
 pip install -m requirements.txt
 ```
 
-
-For samples that involves Machine Learning framework, [DaCeML](https://github.com/spcl/daceml) needs to be installed.
 
 ## Usage
 

@@ -6,5 +6,4 @@ matplotlib
 sympy
 pytest
 seaborn
-pygraphviz
 bidict
