@@ -140,7 +140,16 @@ S-Sched uses Discrete Event Simulation to assess the correctness of buffer space
 The Discrete Event Simulation is implemented in `simpy` and takes into account the task graph, the spatial partitioning and the PE assignment of each task as decided by the scheduling heuristic.
 
 ```Python
+from sched.simulate import Simulation
+sim = Simulation(dag,
+                tasks_schedule,
+                pes_schedule,
+                channels_capacities=buffers_spaces,
+                buffer_nodes=buffer_nodes)
+sim.execute(print_time=False)
+simulated_makespan = sim.get_makespan()
 ```
+
 The simulation returns the simulated makespan, that can be compared with the one returned by the s-sched heuristics.
 
 
