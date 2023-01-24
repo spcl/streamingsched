@@ -122,6 +122,27 @@ scheduler = StreamingScheduler(dag, num_pes=8, buffer_nodes=buffer_nodes)
 pes_schedule, tasks_schedule = scheduler.gang_schedule(streaming_blocks)
 ```
 
+### Buffer space computation and validation
+
+Despite S-Sched considers direct _acyclic_ graph, deadlocks can still occur in the presence of streaming communications if insufficient buffer space is used.
+
+Therefore we provide to the users an analysis pass to inspect the given task graph and compute schedule and return the buffer space
+for each streaming edge.
+
+```Python
+from sched.deadlock_prevention import compute_buffer_space
+buffers_space = compute_buffer_space(dag, spatial_blocks, tasks_schedule, source_node)
+```
+
+The `compute_buffer_space` function returns a dictionary, containing for each streaming edge $(src, dst)$ the corresponding buffer space
+
+S-Sched uses Discrete Event Simulation to assess the correctness of buffer space computation for pipelined communications (the simulation does not deadlock), and the quality of results (the makespan of the computed schedule is close to the simulated one).
+The Discrete Event Simulation is implemented in `simpy` and takes into account the task graph, the spatial partitioning and the PE assignment of each task as decided by the scheduling heuristic.
+
+```Python
+```
+The simulation returns the simulated makespan, that can be compared with the one returned by the s-sched heuristics.
+
 
 ## Samples and tests
 

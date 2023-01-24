@@ -163,10 +163,18 @@ if __name__ == "__main__":
         print("\t min error: ", min(sim_errors))
         print("\t max error: ", max(sim_errors))
         print("\t median error: ", statistics.median(sim_errors))
-    print("## One-lined Summary\nS-Sched speedup\tNon-Streaming Speedup\tSSLR\tSLR")
-    print(
-        f"{res_streaming_interval_gang*num_pes:.2f}\t{res_all_non_streams*num_pes:.2f}\t{res_streaming_slrs:.2f}\t{res_non_streaming_slrs:.2f}"
-    )
+    if not simulate:
+        print("## One-line Summary. Medians of: \nS-Sched speedup\tNon-Streaming Speedup\tSSLR\tSLR")
+        print(
+            f"{res_streaming_interval_gang*num_pes:.2f}\t{res_all_non_streams*num_pes:.2f}\t{res_streaming_slrs:.2f}\t{res_non_streaming_slrs:.2f}"
+        )
+    else:
+        print(
+            "## One-line Summary. Medians of: \nS-Sched speedup\tNon-Streaming Speedup\tSSLR\tSLR\tError wrt Simulation"
+        )
+        print(
+            f"{res_streaming_interval_gang*num_pes:.2f}\t{res_all_non_streams*num_pes:.2f}\t{res_streaming_slrs:.2f}\t{res_non_streaming_slrs:.2f}\t{statistics.median(sim_errors):.4f}"
+        )
 
     data = []
     sim_err_csv = []

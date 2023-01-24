@@ -22,7 +22,7 @@ from collections import defaultdict
 from sched import heft
 from sched import eft
 from utils.graph import set_all_edges_type
-
+from sched.deadlock_prevention import compute_buffer_space
 import time
 
 
@@ -31,7 +31,6 @@ class ForkedPdb(pdb.Pdb):
     from a forked multiprocessing child
     https://stackoverflow.com/questions/4716533/how-to-attach-debugger-to-a-python-subproccess
     """
-
     def interaction(self, *args, **kwargs):
         _stdin = sys.stdin
         try:
@@ -323,16 +322,9 @@ def test_scheduling_heuristics(dag,
         scheduler.streaming_interval_analysis()
 
         buff_space = 0
-        from collections import defaultdict
-        channels_capacities = defaultdict(lambda: 1)
 
-        # Pay attention to use the righ tasks schedule
-        for comp in streaming_components_str_int:
-            sb_chan_capacities = compute_buffer_space(dag, comp, tasks_schedule_gang_str_int, pseudo_source=source_node)
-            # Python 3.9+
-            # channels_capacities = channels_capacities | compute_buffer_space(dag, comp, tasks_schedule_gang_str_int)
-            # Python <3.9
-            channels_capacities.update(sb_chan_capacities)
+        channels_capacities = compute_buffer_space(dag, streaming_components_str_int, tasks_schedule_gang_str_int,
+                                                   source_node)
 
         # SET BACK SOME STREAM TO NON STREAMING
 
@@ -366,13 +358,8 @@ def test_scheduling_heuristics(dag,
             pes_schedule_gang_str_int, tasks_schedule_gang_str_int = scheduler.gang_schedule(
                 streaming_components_str_int, reorder_streaming_block=False)
 
-            channels_capacities = defaultdict(lambda: 1)
-            for comp in streaming_components_str_int:
-                new_buffer_space = compute_buffer_space(dag,
-                                                        comp,
-                                                        tasks_schedule_gang_str_int,
-                                                        pseudo_source=source_node)
-                channels_capacities.update(new_buffer_space)
+            channels_capacities = compute_buffer_space(dag, streaming_components_str_int, tasks_schedule_gang_str_int,
+                                                       source_node)
 
         pes_schedule_gang_str_int, tasks_schedule_gang_str_int = scheduler.gang_schedule(streaming_components_str_int)
         streaming_interval_gang = makespan(tasks_schedule_gang_str_int)
@@ -414,57 +401,3 @@ def test_scheduling_heuristics(dag,
     eff_all_streams = (seq_time / all_streams) / num_pes
     eff_all_non_streams = (seq_time / all_non_streams) / num_pes
     return eff_top_exaustive, eff_max_work, eff_streaming_interval, eff_max_work_gang, eff_streaming_interval_gang, eff_all_streams, eff_all_non_streams, streaming_slr, non_streaming_slr, sim_error
-
-
-def compute_buffer_space(dag: nx.DiGraph, component, tasks_schedule, pseudo_source=-1):
-    """
-
-    Compute buffer space to avoid bubbles by looking at:
-    - first output times in undirected cycles
-    - streaming intervals
-
-    NOTE: max predecessor FO should represent the actual starting time of the node. We are currently using f_t
-    """
-    from math import ceil
-
-    # TODO: remove
-    # Build the subgraph of the streaming block
-    subg = dag.subgraph(component)
-
-    # loop over undirected cycles
-    # TODO: understand what cycles we want to look at, if we want to remove edges after resolution, ...
-
-    edges_buff_space = defaultdict(lambda: 1)
-    num_cycles = 0
-
-    from utils.graph import get_undirected_cycles
-
-    # for source in source_nodes:
-    for ucycle in get_undirected_cycles(subg, pseudo_source=pseudo_source):
-        # print(ucycle)
-        cycle_subg = subg.subgraph(ucycle)
-        num_cycles += 1
-        # Loop over the nodes in the cycle, and look if any node has in_degree > 1
-        # (i.e.,  more than two predecessors in the same cycle)
-        # TODO: is this really the case? maybe we should look at all predecessors (there could be something else impairing this)
-
-        # print("Looking at ", cycle_subg.nodes)
-        for node in cycle_subg.nodes:
-            if cycle_subg.in_degree(node) > 1:
-                # print("Candidate: ", node)
-                # first get the max
-                max_pred_fo = -1
-                # Look at all predecessors (also the ones not in the cycle)
-
-                for pred in subg.predecessors(node):
-                    max_pred_fo = max(tasks_schedule[pred].f_t, max_pred_fo)
-
-                # print(f"MAX PRED FO for {node}: {max_pred_fo}")
-
-                for src, dst, data in cycle_subg.in_edges(node, data=True):
-                    # print(
-                    #     f"Src: {src}, fo src: {tasks_schedule[src].f_t}, max_pred_fo: {max_pred_fo}, streaming interval: {data['streaming_interval']}"
-                    # )
-                    buff_size = max(ceil((max_pred_fo - tasks_schedule[src].f_t) / data['streaming_interval']), 1)
-                    edges_buff_space[(src, dst)] = max(edges_buff_space[(src, dst)], buff_size)
-    return edges_buff_space

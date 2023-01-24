@@ -160,10 +160,18 @@ if __name__ == "__main__":
         # currently we don't show max work since it is the same as streaming interval
         if res_max_work != res_streaming_interval:
             print("Max work produces different results ", res_max_work, res_streaming_interval)
-    print("## One-lined Summary\nS-Sched speedup\tNon-Streaming Speedup\tSSLR\tSLR")
-    print(
-        f"{res_streaming_interval_gang*num_pes:.2f}\t{res_all_non_streams*num_pes:.2f}\t{res_streaming_slrs:.2f}\t{res_non_streaming_slrs:.2f}"
-    )
+    if not simulate:
+        print("## One-line Summary. Medians of: \nS-Sched speedup\tNon-Streaming Speedup\tSSLR\tSLR")
+        print(
+            f"{res_streaming_interval_gang*num_pes:.2f}\t{res_all_non_streams*num_pes:.2f}\t{res_streaming_slrs:.2f}\t{res_non_streaming_slrs:.2f}"
+        )
+    else:
+        print(
+            "## One-line Summary. Medians of: \nS-Sched speedup\tNon-Streaming Speedup\tSSLR\tSLR\tError wrt Simulation"
+        )
+        print(
+            f"{res_streaming_interval_gang*num_pes:.2f}\t{res_all_non_streams*num_pes:.2f}\t{res_streaming_slrs:.2f}\t{res_non_streaming_slrs:.2f}\t{statistics.median(sim_errors):.4f}"
+        )
 
     # Save results to file
 
