@@ -1,3 +1,5 @@
+[![CI Tests](https://github.com/spcl/s-sched/actions/workflows/python-package.yml/badge.svg)](https://github.com/spcl/s-sched/actions/workflows/python-package.yml)
+
 # S-Sched
 
 This repository contains Scheduling heuristics for Streaming Task Graphs over DataFlow Architectures.
@@ -10,7 +12,7 @@ S-Sched propose models and heuristics for scheduling a direct acyclic task graph
 and considering  *pipelining* across tasks as first-class citizen desiderata.
 
 
-##  Code - Requirements and Setup
+## Code - Requirements and Setup
 
 
 
