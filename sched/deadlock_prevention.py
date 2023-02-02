@@ -6,7 +6,7 @@ import networkx as nx
 from collections import defaultdict
 
 
-def compute_buffer_space(dag: nx.DiGraph, spatial_blocks: list, schedule: dict, pseudo_source):
+def compute_buffer_space(dag: nx.DiGraph, spatial_blocks: list, schedule: dict, pseudo_source=0):
     """
     Computes the buffer space needed for each streaming edge in the DAG to avoid deadlocks
 
@@ -26,7 +26,7 @@ def compute_buffer_space(dag: nx.DiGraph, spatial_blocks: list, schedule: dict, 
     return buffers_space
 
 
-def compute_buffer_space_of_block(dag: nx.DiGraph, component, tasks_schedule, pseudo_source=-1):
+def compute_buffer_space_of_block(dag: nx.DiGraph, component, tasks_schedule, pseudo_source=0):
     """
 
     Compute buffer space in a given spatial block to avoid deadlocks by looking at:
@@ -64,10 +64,17 @@ def compute_buffer_space_of_block(dag: nx.DiGraph, component, tasks_schedule, ps
                 # print("Candidate: ", node)
                 # first get the max
                 max_pred_fo = -1
-                # Look at all predecessors (also the ones not in the cycle)
+
+                # Look at all predecessors (also the ones not in the cycle, also the ones that do no stream since they
+                # will prevent the streaming one to send the data)
 
                 for pred in subg.predecessors(node):
                     max_pred_fo = max(tasks_schedule[pred].f_t, max_pred_fo)
+                    if 'stream' in dag.edges()[(pred, node)] and dag.edges()[(pred,
+                                                                              node)]['stream']:  # The edge is streaming
+                        max_pred_fo = max(tasks_schedule[pred].f_t, max_pred_fo)
+                    else:
+                        max_pred_fo = max(tasks_schedule[pred].end_t, max_pred_fo)
 
                 # print(f"MAX PRED FO for {node}: {max_pred_fo}")
 
@@ -76,5 +83,7 @@ def compute_buffer_space_of_block(dag: nx.DiGraph, component, tasks_schedule, ps
                     #     f"Src: {src}, fo src: {tasks_schedule[src].f_t}, max_pred_fo: {max_pred_fo}, streaming interval: {data['streaming_interval']}"
                     # )
                     buff_size = max(ceil((max_pred_fo - tasks_schedule[src].f_t) / data['streaming_interval']), 1)
-                    edges_buff_space[(src, dst)] = max(edges_buff_space[(src, dst)], buff_size)
+                    if 'stream' in dag.edges()[(src, dst)] and dag.edges()[(src,
+                                                                            dst)]['stream']:  # The edge is streaming
+                        edges_buff_space[(src, dst)] = max(edges_buff_space[(src, dst)], buff_size)
     return edges_buff_space
