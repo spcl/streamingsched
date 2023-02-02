@@ -1,6 +1,6 @@
-[![CI Tests](https://github.com/spcl/s-sched/actions/workflows/python-package.yml/badge.svg)](https://github.com/spcl/s-sched/actions/workflows/python-package.yml)
+[![CI Tests](https://github.com/spcl/streamingsched/actions/workflows/python-package.yml/badge.svg)](https://github.com/spcl/streamingsched/actions/workflows/python-package.yml)
 
-# S-Sched
+# Streaming-Sched
 
 This repository contains Scheduling heuristics for Streaming Task Graphs over DataFlow Architectures.
 
@@ -8,7 +8,7 @@ On Spatial devices (such as CGRAs) the computation can be performed both _spatia
 of a large number of computing units, and _temporally_, by time-multiplexing resources to perform the computation.
 On top of this dicothomy, _pipelining_ can be crucial to fully exploit the device’s spatial parallelism.
 
-S-Sched propose models and heuristics for scheduling a direct acyclic task graph on dataflow devices, specifically dealing with *time vs space* tradeoff, 
+Streaming-Sched propose models and heuristics for scheduling a direct acyclic task graph on dataflow devices, specifically dealing with *time vs space* tradeoff, 
 and considering  *pipelining* across tasks as first-class citizen desiderata.
 
 
@@ -29,7 +29,7 @@ pip install -m requirements.txt
 
 ### Canonical DAGs
 
-S-Sched accepts Direct Acyclic Graphs in the form of `Networkx` DiGraph. 
+Streaming-Sched accepts Direct Acyclic Graphs in the form of `Networkx` DiGraph. 
 The nodes of the graph represent *tasks* in which the application can be decomposed. 
 An edge between two nodes $u$ and $v$ indicates a data dependency between two tasks, and it is annotated with the amount of data being
 transferred between $u$ and $v$. An edge can be *streaming* (meaning that sender and receiver can be simultaneously in execution) or *non-streaming* (the receiver will be executed only when the sender completed its execution).
@@ -105,7 +105,7 @@ show_schedule_gantt_chart(pes_schedule) # visualizes a Gantt chart
 
 ### Streaming Scheduling with spatial partitioning
 
-How to partition the DAG into spatial blocks is not straightforward. S-Sched comes with heuristics that do this with the aim of minimizing the makespan.
+How to partition the DAG into spatial blocks is not straightforward. Streaming-Sched comes with heuristics that do this with the aim of minimizing the makespan.
 
 Once the user has created the DAG, the spatial block partitioning can be invoked as follows:
 ```Python
@@ -126,7 +126,7 @@ pes_schedule, tasks_schedule = scheduler.gang_schedule(streaming_blocks)
 
 ### Buffer space computation and validation
 
-Despite S-Sched considers direct _acyclic_ graph, deadlocks can still occur in the presence of streaming communications if insufficient buffer space is used.
+Despite Streaming-Sched considers direct _acyclic_ graph, deadlocks can still occur in the presence of streaming communications if insufficient buffer space is used.
 
 Therefore we provide to the users an analysis pass to inspect the given task graph and compute schedule and return the buffer space
 for each streaming edge.
@@ -138,7 +138,7 @@ buffers_space = compute_buffer_space(dag, spatial_blocks, tasks_schedule, source
 
 The `compute_buffer_space` function returns a dictionary, containing for each streaming edge $(src, dst)$ the corresponding buffer space
 
-S-Sched uses Discrete Event Simulation to assess the correctness of buffer space computation for pipelined communications (the simulation does not deadlock), and the quality of results (the makespan of the computed schedule is close to the simulated one).
+Streaming-Sched uses Discrete Event Simulation to assess the correctness of buffer space computation for pipelined communications (the simulation does not deadlock), and the quality of results (the makespan of the computed schedule is close to the simulated one).
 The Discrete Event Simulation is implemented in `simpy` and takes into account the task graph, the spatial partitioning and the PE assignment of each task as decided by the scheduling heuristic.
 
 ```Python
@@ -152,7 +152,7 @@ sim.execute(print_time=False)
 simulated_makespan = sim.get_makespan()
 ```
 
-The simulation returns the simulated makespan, that can be compared with the one returned by the s-sched heuristics.
+The simulation returns the simulated makespan, that can be compared with the one returned by the Streaming-Sched heuristics.
 
 
 ## Samples and tests
@@ -182,7 +182,7 @@ The `tests` directory contains unit tests for validating basic functionalities.
 
 
 ## Development and Contribution
-S-Sched is an open-source project. We are happy to accept Pull Requests with your contributions! Please follow the contribution guidelines before submitting a pull request.
+Streaming-Sched is an open-source project. We are happy to accept Pull Requests with your contributions! Please follow the contribution guidelines before submitting a pull request.
 
 
 
