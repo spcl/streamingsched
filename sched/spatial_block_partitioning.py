@@ -7,11 +7,10 @@ Heuristics for spatial partitioning
 
 import networkx as nx
 import numpy as np
-from collections import deque, namedtuple
 import logging
 import matplotlib.pyplot as plt
 from queue import PriorityQueue
-from collections import deque
+from collections import deque, defaultdict, namedtuple
 from dataclasses import dataclass
 import math
 from queue import PriorityQueue, Queue
@@ -116,7 +115,7 @@ def spatial_block_partitioning(G: nx.DiGraph,
     # Now create streaming blocks by considering the actual running time of each node
     # This is given by its work and incident streaming intervals
 
-    work = [0] * new_dag.number_of_nodes()
+    work = defaultdict(int)
     for n in new_dag.nodes():
         if n == pseudo_root or n == pseudo_sink_node:
             work[n] = 0
@@ -124,7 +123,7 @@ def spatial_block_partitioning(G: nx.DiGraph,
             work[n] = scheduler._compute_execution_time_isolation(n)
 
     # Compute the depth of the nodes to break ties
-    depths = [0] * new_dag.number_of_nodes()
+    depths = defaultdict(int)
     for node in nx.algorithms.bfs_tree(new_dag, pseudo_root):
         max_depth = 0
         for p in new_dag.predecessors(node):
@@ -134,8 +133,8 @@ def spatial_block_partitioning(G: nx.DiGraph,
     # save output data for all the nodes
     # TODO: how to deal with the pseudo source?
 
-    consumed_data = [0] * new_dag.number_of_nodes()
-    produced_data = [0] * new_dag.number_of_nodes()
+    consumed_data = defaultdict(int)
+    produced_data = defaultdict(int)
 
     for n in new_dag.nodes:
         if new_dag.out_degree(n) > 0:
@@ -214,7 +213,8 @@ def spatial_block_partitioning(G: nx.DiGraph,
                             max_slowdown = production_ratio / input_streaming_interval
                         continue
 
-                if produced_data[s] <= produced_data[bs] or s in buffer_nodes:
+                if produced_data[s] <= produced_data[
+                        bs] or s in buffer_nodes or bs in buffer_nodes:  # Added the last condition (if the source is a buffer node just add it)
                     # add the nodes with less data than the source (or buffer nodes)
 
                     if consider_upsampling_ratio and max_in_volume > 0:

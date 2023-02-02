@@ -298,7 +298,7 @@ def _get_marked_components(graph: nx.Graph, start):
     return components
 
 
-def get_undirected_cycles(dag: nx.DiGraph, pseudo_source: int = -1):
+def get_undirected_cycles(dag: nx.DiGraph, pseudo_source: int = 0):
     """
     Generates a list of undirected cycles contained in the given direct DAG.
 
@@ -359,7 +359,17 @@ def get_undirected_cycles(dag: nx.DiGraph, pseudo_source: int = -1):
                             _mark_ancestors(subgraph, vertex, n)
                     else:
                         subgraph.nodes[n]['parent'] = vertex
-                        stack.append(n)
+                        # Continue visiting only if the edge is streaming (we are interested in cycles of streaming edges)
+                        # (Unless this is coming from a pseudo source, which by default does not have streaming out edges)
+                        # TODO: not sure if this is ok. If the cycle has a non streaming edge in it, we may want to consider it
+                        # as it will slow-down one path. The point is that if the cycle has no streaming edges at along the path
+                        # between the fork/join node, then it is ok to not consider that path. If only one of such edges exists, then
+                        # we have to consider (since the fork join will still push the data in both of them -- think to a double path
+                        # example where both path have more than one node)
+                        # With this approach, anyway, we have been able to reduce uneeded buffer space
+                        if vertex == pseudo_source or ('stream' in subgraph.edges()[n, vertex]
+                                                       and subgraph.edges()[n, vertex]['stream']):
+                            stack.append(n)
                 # print("\tNew stack: ", stack)
                 # stack.extend(subgraph[vertex] - visited)
             # else:

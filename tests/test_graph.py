@@ -33,15 +33,15 @@ def test_undirected_cycles():
     # two separated cycles, single component
     dag = nx.DiGraph()
     dag.add_node(0)  # pseudo source
-    dag.add_edge(0, 1)
-    dag.add_edge(1, 2)
-    dag.add_edge(2, 3)
-    dag.add_edge(3, 4)
-    dag.add_edge(2, 4)
-    dag.add_edge(1, 5)
-    dag.add_edge(5, 6)
-    dag.add_edge(6, 7)
-    dag.add_edge(5, 7)
+    dag.add_edge(0, 1, weight=1, stream=False)
+    dag.add_edge(1, 2, weight=1, stream=True)
+    dag.add_edge(2, 3, weight=1, stream=True)
+    dag.add_edge(3, 4, weight=1, stream=True)
+    dag.add_edge(2, 4, weight=1, stream=True)
+    dag.add_edge(1, 5, weight=1, stream=True)
+    dag.add_edge(5, 6, weight=1, stream=True)
+    dag.add_edge(6, 7, weight=1, stream=True)
+    dag.add_edge(5, 7, weight=1, stream=True)
     expected = [{5, 6, 7}, {2, 3, 4}]
     cycles = get_undirected_cycles(dag)
     assert expected == cycles
@@ -87,13 +87,13 @@ def test_undirected_cycles():
 
     # separate components
     dag = nx.DiGraph()
-    dag.add_edge(2, 3, weight=1)
-    dag.add_edge(3, 4, weight=1)
-    dag.add_edge(2, 4, weight=1)
-    dag.add_edge(1, 5, weight=1)
-    dag.add_edge(5, 6, weight=1)
-    dag.add_edge(6, 7, weight=1)
-    dag.add_edge(5, 7, weight=1)
+    dag.add_edge(2, 3, weight=1, stream=True)
+    dag.add_edge(3, 4, weight=1, stream=True)
+    dag.add_edge(2, 4, weight=1, stream=True)
+    dag.add_edge(1, 5, weight=1, stream=True)
+    dag.add_edge(5, 6, weight=1, stream=True)
+    dag.add_edge(6, 7, weight=1, stream=True)
+    dag.add_edge(5, 7, weight=1, stream=True)
     cycles = get_undirected_cycles(dag)
     expected = [{2, 3, 4}, {5, 6, 7}]
     assert cycles == expected

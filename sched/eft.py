@@ -90,11 +90,12 @@ def schedule_dag(dag: nx.DiGraph, W: np.array, P: int):
     # Note: if we have buffer nodes, these have running time equal to zero. So it could occur that the sorted nodes do not
     # respect the topological order (e.g., you have two buffer nodes one after the other, they can be switched)
     # We take care of this by already starting from the node in topological order, and relying on the sorting algorithm being stable
-    # sorted_nodes = sorted(topo_sort, key=lambda node: dag.nodes()[node]['ranku'], reverse=True)
+    sorted_nodes = sorted(topo_sort, key=lambda node: dag.nodes()[node]['ranku'], reverse=True)
 
     # For having the CP/MISF variants: in case two tasks have the same priority, the task having the largest number of
     # immediately successive tasks is assigned the highest priority
-    sorted_nodes = sorted(topo_sort, key=lambda node: (dag.nodes()[node]['ranku'], dag.out_degree(node)), reverse=True)
+    # TODO: this may result in sporadic error while scheduling, due to the way in which these are ordered (maybe the predecessor must still be scheduled)
+    # sorted_nodes = sorted(topo_sort, key=lambda node: (dag.nodes()[node]['ranku'], dag.out_degree(node)), reverse=True)
 
     # TODO: deal with non-single source/sink node
     if sorted_nodes[0] != source_node:

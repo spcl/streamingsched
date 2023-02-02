@@ -63,7 +63,6 @@ class StreamingScheduler(object):
     '''
         Streaming Scheduler    
     '''
-
     def __init__(self, dag: nx.DiGraph, num_pes: int, base_latency: int = 1, buffer_nodes: Set[int] = {}):
         """
         Builds a streaming scheduler
@@ -103,7 +102,7 @@ class StreamingScheduler(object):
         assert len(source_node) == 1
         self.source_node = source_node[0]
 
-        self.production_rate = [0] * dag.number_of_nodes()
+        self.production_rate = dict()
 
         # TODO: add more check for correctness: for example that all nodes have input edges
 
@@ -129,8 +128,9 @@ class StreamingScheduler(object):
                 if output_data == -1:
                     output_data = data['weight']
                 else:
-                    assert data[
-                        'weight'] == output_data, f"Node {n} has output edges with different volume ({data['weight']} - {output_data})"
+                    if n not in self.buffer_nodes:
+                        assert data[
+                            'weight'] == output_data, f"Node {n} has output edges with different volume ({data['weight']} - {output_data})"
 
             # save the node production rate
             self.production_rate[n] = Fraction(int(output_data), int(input_data))
@@ -908,6 +908,16 @@ class StreamingScheduler(object):
         for node in topo_order:
             if streaming_blocks[node] not in streaming_components:
                 streaming_components.append(streaming_blocks[node])
+
+        # TODO: if I have two independent nodes, they can be in the same streaming block !!!
+        # It is better to use the streaming components returned by the partitioning rather than this one
+        # However, we may need to use this anyway
+        # A possible idea to do this would be the following:
+        # - we traverse the graph by looking at sources:
+        #   - if the source has no predecessor in the current streaming component add it
+        #   - otherwise add it if all the predecessors that are in the same components are connected with streaming edges
+        #   (the others can be also non-streaming as they have been already in another components)
+        # - we remove the source and continue
 
         # Streaming blocks must be ordered in such a way we ensure that a streaming block appears only when all
         # the precedent nodes have been already scheduled
