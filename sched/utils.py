@@ -78,7 +78,7 @@ def build_W_matrix_HEFT(dag: nx.DiGraph, pseudo_source_node: int, pseudo_sink: i
     :return: the W matrix needed to run HEFT
     '''
 
-    num_tasks = len(dag.nodes())
+    num_tasks = max(dag.nodes()) + 1  # TODO: this because we may have hole
 
     comp_array = np.zeros((num_tasks))
 
