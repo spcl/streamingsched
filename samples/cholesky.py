@@ -1,4 +1,4 @@
-# S-Sched: Streaming Scheduling for Dataflow Architectures.
+# Streaming-Sched: Streaming Scheduling for Dataflow Architectures.
 # Copyright (c) 2023 ETH Zurich. All rights reserved.
 # See LICENSE for license information.
 '''
@@ -168,13 +168,13 @@ if __name__ == "__main__":
         if res_max_work != res_streaming_interval:
             print("Max work produces different results ", res_max_work, res_streaming_interval)
     if not simulate:
-        print("## One-line Summary. Medians of: \nS-Sched speedup\tNon-Streaming Speedup\tSSLR\tSLR")
+        print("## One-line Summary. Medians of: \nStreaming-Sched speedup\tNon-Streaming Speedup\tSSLR\tSLR")
         print(
             f"{res_streaming_interval_gang*num_pes:.2f}\t{res_all_non_streams*num_pes:.2f}\t{res_streaming_slrs:.2f}\t{res_non_streaming_slrs:.2f}"
         )
     else:
         print(
-            "## One-line Summary. Medians of: \nS-Sched speedup\tNon-Streaming Speedup\tSSLR\tSLR\tError wrt Simulation"
+            "## One-line Summary. Medians of: \nStreaming-Sched speedup\tNon-Streaming Speedup\tSSLR\tSLR\tError wrt Simulation"
         )
         print(
             f"{res_streaming_interval_gang*num_pes:.2f}\t{res_all_non_streams*num_pes:.2f}\t{res_streaming_slrs:.2f}\t{res_non_streaming_slrs:.2f}\t{statistics.median(sim_errors):.4f}"
@@ -196,7 +196,7 @@ if __name__ == "__main__":
     results_filename = f'results_cholesky_N_{N}_P_{num_pes}.csv'
     sim_error_filename = f'sim_error_cholesky_N_{N}_P_{num_pes}.csv'
 
-    results_header = ["StrInt_Gang_Speedup", "NonStream_Speedup", "StreamingSLR", "NonStreamingSLR", "Sim_Error"]
+    results_header = ["Streaming_Sched_Speedup", "NonStream_Speedup", "StreamingSLR", "NonStreamingSLR", "Sim_Error"]
     sim_error_header = [f"{num_pes}"]
 
     save_results_to_file(results_filename, results_header, data)

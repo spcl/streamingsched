@@ -1,4 +1,4 @@
-# S-Sched: Streaming Scheduling for Dataflow Architectures.
+# Streaming-Sched: Streaming Scheduling for Dataflow Architectures.
 # Copyright (c) 2023 ETH Zurich. All rights reserved.
 # See LICENSE for license information.
 '''
