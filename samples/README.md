@@ -3,7 +3,7 @@
 This folder contains samples using various well-known DAG (chain, Cholesky, Gaussian elimination and FFT).
 
 For each of them, the corresponding script is in charge of creating multiple random graph, schedule them
-using S-Sched (and spatial partitioning), and compare the results against the non-streaming schedule.
+using Streaming-Sched (and spatial partitioning), and compare the results against the non-streaming schedule.
 The Scheduling Length Ratio (SLR) and the Streaming Scheduling Length Ratio (SSLR) are computed as well.
 
 All the scripts can be invoked as follows:
