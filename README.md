@@ -21,7 +21,7 @@ The library is written on Python3.8 and successive.
 To install all the required modules it is sufficient to run from the repository folder:
 
 ```
-pip install -m requirements.txt
+pip install -r requirements.txt
 ```
 
 
